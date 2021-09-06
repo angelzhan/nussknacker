@@ -12,7 +12,7 @@ import pl.touk.nussknacker.engine.management.periodic.service.{AdditionalDeploym
 import pl.touk.nussknacker.test.PatientScalaFutures
 
 import java.time.temporal.{ChronoField, ChronoUnit, TemporalField}
-import java.time.{Clock, Instant, LocalDate}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 
@@ -77,6 +77,23 @@ class PeriodicProcessServiceTest extends FunSuite
 
     val finished :: scheduled :: Nil = f.repository.deploymentEntities.map(createPeriodicProcessDeployment(processEntity, _)).toList
     f.events.toList shouldBe List(FinishedEvent(finished, f.delegateDeploymentManagerStub.jobStatus), ScheduledEvent(scheduled, firstSchedule = false))
+  }
+
+  test("handleFinished - should deactivate process if there are no future schedules") {
+    val f = new Fixture
+    val yearNow = LocalDate.now().getYear
+    val cronInPast = CronScheduleProperty(s"0 0 6 6 9 ? ${yearNow - 1}")
+    f.repository.addActiveProcess(processName, PeriodicProcessDeploymentStatus.Deployed, scheduleProperty = cronInPast)
+    f.delegateDeploymentManagerStub.setStateStatus(FlinkStateStatus.Finished)
+
+    f.periodicProcessService.handleFinished.futureValue
+
+    val processEntity = f.repository.processEntities.loneElement
+    processEntity.active shouldBe false
+    f.repository.deploymentEntities.loneElement.status shouldBe PeriodicProcessDeploymentStatus.Finished
+    // TODO should be false
+    val event = createPeriodicProcessDeployment(processEntity.copy(active = true), f.repository.deploymentEntities.loneElement)
+    f.events.loneElement shouldBe FinishedEvent(event, f.delegateDeploymentManagerStub.jobStatus)
   }
 
   test("handle first schedule") {
@@ -150,5 +167,9 @@ class PeriodicProcessServiceTest extends FunSuite
 
     intercept[TestFailedException](tryToSchedule(cronInPast)).getCause shouldBe a[PeriodicProcessException]
     intercept[TestFailedException](tryToSchedule(MultipleScheduleProperty(Map("s1" -> cronInPast, "s2" -> cronInPast)))).getCause shouldBe a[PeriodicProcessException]
+  }
+
+  test("getLatestDeployment - should return correct deployment for multiple schedules") {
+
   }
 }
