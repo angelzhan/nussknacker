@@ -18,7 +18,8 @@ load additional encoders.
 Some additional refactors done: logback configuration enhancements, simpler run.sh script, removed docker defaults from default configs.
 * [#2105](https://github.com/TouK/nussknacker/pull/2105) [#2112](https://github.com/TouK/nussknacker/pull/2112)
 Better handling Flink's job deploying - we report job initialization as a "DURING_DEPLOY" instead of "RUNNING" now, and we are checking available slots on Flink before deploy
-* [#2152](https://github.com/TouK/nussknacker/pull/2152) Possibility to create `SchedulePropertyExtractor` using deployment manager's configuration.
+* [#2150](https://github.com/TouK/nussknacker/pull/2150)
+Better handling of multiple schedules in batch periodic engine - fixed running one time scenarios and improved current scenario status reporting.
 
 0.4.0
 ------------------------
