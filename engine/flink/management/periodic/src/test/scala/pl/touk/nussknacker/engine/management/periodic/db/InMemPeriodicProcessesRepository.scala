@@ -7,13 +7,20 @@ import pl.touk.nussknacker.engine.management.periodic.db.PeriodicProcessesReposi
 import pl.touk.nussknacker.engine.management.periodic.model.PeriodicProcessDeploymentStatus.PeriodicProcessDeploymentStatus
 import pl.touk.nussknacker.engine.management.periodic.model._
 import pl.touk.nussknacker.engine.management.periodic._
+import pl.touk.nussknacker.engine.management.periodic.db.InMemPeriodicProcessesRepository.{DeploymentIdSequence, ProcessIdSequence}
 
 import java.time.chrono.ChronoLocalDateTime
 import java.time.{LocalDateTime, ZoneId}
+import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.util.Random
+
+object InMemPeriodicProcessesRepository {
+  private val ProcessIdSequence = new AtomicLong(0)
+  private val DeploymentIdSequence = new AtomicLong(0)
+}
 
 class InMemPeriodicProcessesRepository extends PeriodicProcessesRepository {
 
@@ -31,9 +38,14 @@ class InMemPeriodicProcessesRepository extends PeriodicProcessesRepository {
   def addActiveProcess(processName: ProcessName,
                        deploymentStatus: PeriodicProcessDeploymentStatus,
                        scheduleProperty: SingleScheduleProperty = CronScheduleProperty("0 0 * * * ?")): Unit = {
+    val periodicProcessId = addOnlyProcess(processName, scheduleProperty)
+    addOnlyDeployment(periodicProcessId, deploymentStatus)
+  }
 
-    val id = PeriodicProcessId(Random.nextLong())
-    processEntities += PeriodicProcessEntity(
+  def addOnlyProcess(processName: ProcessName,
+                     scheduleProperty: ScheduleProperty = CronScheduleProperty("0 0 * * * ?")): PeriodicProcessId = {
+    val id = PeriodicProcessId(ProcessIdSequence.incrementAndGet())
+    val entity = PeriodicProcessEntity(
       id = id,
       processName = processName.value,
       processVersionId = 1,
@@ -44,16 +56,27 @@ class InMemPeriodicProcessesRepository extends PeriodicProcessesRepository {
       active = true,
       createdAt = LocalDateTime.now()
     )
-    deploymentEntities += PeriodicProcessDeploymentEntity(
-      id = PeriodicProcessDeploymentId(Random.nextLong()),
-      periodicProcessId = id,
+    processEntities += entity
+    id
+  }
+
+  def addOnlyDeployment(periodicProcessId: PeriodicProcessId,
+                        status: PeriodicProcessDeploymentStatus,
+                        runAt: LocalDateTime = LocalDateTime.now(),
+                        scheduleName: Option[String] = None): PeriodicProcessDeploymentId = {
+    val id = PeriodicProcessDeploymentId(DeploymentIdSequence.incrementAndGet())
+    val entity = PeriodicProcessDeploymentEntity(
+      id = id,
+      periodicProcessId = periodicProcessId,
       createdAt = LocalDateTime.now(),
       runAt = LocalDateTime.now(),
-      scheduleName = None,
+      scheduleName = scheduleName,
       deployedAt = None,
       completedAt = None,
-      status = deploymentStatus
+      status = status
     )
+    deploymentEntities += entity
+    id
   }
 
   override def markInactive(processName: ProcessName): Unit =
