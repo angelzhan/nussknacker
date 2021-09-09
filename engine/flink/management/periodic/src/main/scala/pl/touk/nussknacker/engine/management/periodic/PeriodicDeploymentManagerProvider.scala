@@ -11,7 +11,9 @@ import pl.touk.nussknacker.engine.util.config.ConfigEnrichments.RichConfig
 import pl.touk.nussknacker.engine.{DeploymentManagerProvider, ModelData}
 
 class PeriodicDeploymentManagerProvider(delegate: DeploymentManagerProvider,
-                                        schedulePropertyExtractorFactory: SchedulePropertyExtractorFactory = _ => CronSchedulePropertyExtractor(),
+                                        schedulePropertyExtractorFactory: SchedulePropertyExtractorFactory = new SchedulePropertyExtractorFactory {
+                                          override def apply(config: Config): SchedulePropertyExtractor = CronSchedulePropertyExtractor()
+                                        },
                                         deploymentEnricherFactory: DeploymentEnricherFactory = DeploymentEnricherFactory.noOp,
                                         listenerFactory: PeriodicProcessListenerFactory = EmptyPeriodicProcessListenerFactory,
                                         additionalDeploymentDataProvider: AdditionalDeploymentDataProvider = DefaultAdditionalDeploymentDataProvider

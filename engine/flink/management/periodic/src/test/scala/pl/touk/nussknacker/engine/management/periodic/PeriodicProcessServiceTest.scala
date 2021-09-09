@@ -195,7 +195,7 @@ class PeriodicProcessServiceTest extends FunSuite
       (List(PeriodicProcessDeploymentStatus.Failed, PeriodicProcessDeploymentStatus.Scheduled), PeriodicProcessDeploymentStatus.Failed, schedule1),
       (List(PeriodicProcessDeploymentStatus.Failed, PeriodicProcessDeploymentStatus.Deployed), PeriodicProcessDeploymentStatus.Deployed, schedule2),
       (List(PeriodicProcessDeploymentStatus.Failed, PeriodicProcessDeploymentStatus.Finished), PeriodicProcessDeploymentStatus.Failed, schedule1),
-      (List(PeriodicProcessDeploymentStatus.Failed, PeriodicProcessDeploymentStatus.Failed), PeriodicProcessDeploymentStatus.Failed, schedule2),
+      (List(PeriodicProcessDeploymentStatus.Failed, PeriodicProcessDeploymentStatus.Failed), PeriodicProcessDeploymentStatus.Failed, schedule2)
     )
 
     forAll(table) { (statuses: List[PeriodicProcessDeploymentStatus], expectedStatus: PeriodicProcessDeploymentStatus, expectedScheduleName: String) =>
