@@ -8,12 +8,19 @@ For detailed instructions how to migrate to the newest version please see [migra
 Nussknacker versions
 ====================
      
-0.4.1
+0.5.0 (Not released yet)
 ------------------------
 * [#1968](https://github.com/TouK/nussknacker/pull/1968) `BestEffortJsonEncoder` uses `ServiceLoader` mechanism to
 load additional encoders.
+* [#2003](https://github.com/TouK/nussknacker/pull/2003) Counts use epoch milli on backend.
+* [#1439](https://github.com/TouK/nussknacker/pull/1439) Upgrade to Flink 1.13
+* [#1993](https://github.com/TouK/nussknacker/pull/1993) Demo was moved to https://github.com/TouK/nussknacker-quickstart. 
+Some additional refactors done: logback configuration enhancements, simpler run.sh script, removed docker defaults from default configs.
+* [#2105](https://github.com/TouK/nussknacker/pull/2105) [#2112](https://github.com/TouK/nussknacker/pull/2112)
+Better handling Flink's job deploying - we report job initialization as a "DURING_DEPLOY" instead of "RUNNING" now, and we are checking available slots on Flink before deploy
+* [#2152](https://github.com/TouK/nussknacker/pull/2152) Possibility to create `SchedulePropertyExtractor` using deployment manager's configuration.
 
-0.4.0 
+0.4.0
 ------------------------
 * More precise TypeInformation generation
     * [#1338](https://github.com/TouK/nussknacker/pull/1338) Defining TypeInformation based on TypingResult
@@ -234,22 +241,3 @@ configuration should be used from now on.
 0.0.6 (9 Aug 2017)
 ---------
 First open source version :)
-
-
-Compatibility matrix
-====================
-
-Table below contains versions of libraries/apps that can be used with Nussknacker 
-
-|Nussknacker| Flink | Kafka  | InfluxDB | Grafana |
-|-----------|-------|--------|----------|---------|
-| master    |**1.7.2**|0.11.0.2|1.2.0     | 5.4.0   |
-| 0.0.12    |1.7.2  |0.11.0.2| 1.2.0    | 5.4.0   |
-| 0.0.11    |1.6.1  |0.11.0.2| 1.2.0   | 5.4.0  |
-| 0.0.10    |**1.6.1**  |0.11.0.2| 1.2.0    | 5.4.0   |
-| 0.0.9     |1.4.2  |0.11.0.2| 1.2.0        | 5.4.0       |
-| 0.0.8     |1.4.2  |0.11.0.2| 1.2.0    | 4.0.1   |
-| 0.0.7     |1.3.1  |0.9.0.1 | 1.2.0    | 4.0.1   |
-| 0.0.6     |1.3.1  |0.9.0.1 | 1.2.0    | 4.0.1   |
-
-

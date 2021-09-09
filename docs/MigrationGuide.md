@@ -1,7 +1,16 @@
 
 # Migration guide
 
-To see biggest differences please consult the [changelog](Changelog.md).
+To see the biggest differences please consult the [changelog](Changelog.md).
+   
+## In version 0.5.0 (Not released yet)
+
+* [#1439](https://github.com/TouK/nussknacker/pull/1439) [#2090](https://github.com/TouK/nussknacker/pull/2090) Upgrade do Flink 1.13.
+  * `setTimeCharacteristic` is deprecated, and should be handled automatically by Flink. 
+  * `UserClassLoader` was removed, use appropriate Flink objects or context ClassLoader. 
+  * RocksDB configuration is turned on by `rocksdb.enable` instead of `rocksdb.checkpointDataUri` which is not used now. 
+* [#2152](https://github.com/TouK/nussknacker/pull/2152) `schedulePropertyExtractor` parameter of `PeriodicDeploymentManagerProvider`
+  was changed to a factory, replace with a lambda creating the original property extractor.
 
 ## In version 0.4.0
 
@@ -156,7 +165,8 @@ To see biggest differences please consult the [changelog](Changelog.md).
   * [#1917](https://github.com/TouK/nussknacker/pull/1917) configuration of `engineConfig` to `deploymentConfig`                           
   * [#1921](https://github.com/TouK/nussknacker/pull/1921) `ProcessManager` to `DeploymentManager`                           
   * [#1927](https://github.com/TouK/nussknacker/pull/1927) Rename `outer-join` to `single-side-join`
-
+   
+          
 ## In version 0.3.0
 
 * [#1313](https://github.com/TouK/nussknacker/pull/1313) Kafka Avro API passes `KafkaConfig` during `TypeInformation` determining
