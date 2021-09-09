@@ -36,7 +36,7 @@ class JarManagerTest extends FunSuite
       jarsDir = jarsDir,
       modelConfig = InputConfigDuringExecution(ConfigFactory.empty()),
       createCurrentModelJarFile = currentModelJarFile,
-      enrichDeploymentWithJarData = EnrichDeploymentWithJarData.noOp
+      deploymentEnricher = DeploymentEnricher.noOp
     )
   }
 

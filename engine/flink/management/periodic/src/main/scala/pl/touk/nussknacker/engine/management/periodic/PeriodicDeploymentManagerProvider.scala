@@ -12,7 +12,7 @@ import pl.touk.nussknacker.engine.{DeploymentManagerProvider, ModelData}
 
 class PeriodicDeploymentManagerProvider(delegate: DeploymentManagerProvider,
                                         schedulePropertyExtractorFactory: SchedulePropertyExtractorFactory = _ => CronSchedulePropertyExtractor(),
-                                        enrichDeploymentWithJarDataFactory: EnrichDeploymentWithJarDataFactory = EnrichDeploymentWithJarDataFactory.noOp,
+                                        deploymentEnricherFactory: DeploymentEnricherFactory = DeploymentEnricherFactory.noOp,
                                         listenerFactory: PeriodicProcessListenerFactory = EmptyPeriodicProcessListenerFactory,
                                         additionalDeploymentDataProvider: AdditionalDeploymentDataProvider = DefaultAdditionalDeploymentDataProvider
                                        ) extends DeploymentManagerProvider with LazyLogging {
@@ -30,7 +30,7 @@ class PeriodicDeploymentManagerProvider(delegate: DeploymentManagerProvider,
     PeriodicDeploymentManager(
       delegate = delegateDeploymentManager,
       schedulePropertyExtractorFactory = schedulePropertyExtractorFactory,
-      enrichDeploymentWithJarDataFactory = enrichDeploymentWithJarDataFactory,
+      deploymentEnricherFactory = deploymentEnricherFactory,
       periodicBatchConfig = periodicBatchConfig,
       flinkConfig = flinkConfig,
       originalConfig = config,

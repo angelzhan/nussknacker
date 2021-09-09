@@ -11,6 +11,7 @@ To see the biggest differences please consult the [changelog](Changelog.md).
   * RocksDB configuration is turned on by `rocksdb.enable` instead of `rocksdb.checkpointDataUri` which is not used now. 
 * [#2152](https://github.com/TouK/nussknacker/pull/2152) `schedulePropertyExtractor` parameter of `PeriodicDeploymentManagerProvider`
   was changed to a factory, replace with a lambda creating the original property extractor.
+* [TODO](https://github.com/TouK/nussknacker/pull/TODO) `EnrichDeploymentWithJarDataFactory` was replaced with `DeploymentEnricherFactory`.
 
 ## In version 0.4.0
 

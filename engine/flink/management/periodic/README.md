@@ -14,7 +14,7 @@ scenario is scheduled to be run again according to the schedule.
   - Underlying engine, currently only Flink is supported.
   - Optional `SchedulePropertyExtractorFactory` to determine how to construct an instance of a periodic property. By default
     a cron expression set in scenario properties is used to describe when a scenario should be run.
-  - Optional `EnrichDeploymentWithJarDataFactory` if you would like to, for example, extend scenario configuration,
+  - Optional `DeploymentEnricherFactory` if you would like to, for example, extend scenario configuration,
     by default nothing is done.
   - Optional `PeriodicProcessListenerFactory` to take some actions on scenario lifecycle.
   - Optional `AdditionalDeploymentDataProvider` to inject additional deployment parameters.
