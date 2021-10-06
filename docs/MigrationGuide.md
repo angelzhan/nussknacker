@@ -3,7 +3,18 @@
 
 To see the biggest differences please consult the [changelog](Changelog.md).
    
-## In version 0.5.0 (Not released yet)
+## In version 1.1.0 (Not released yet)
+* [#2176](https://github.com/TouK/nussknacker/pull/2176) `EnrichDeploymentWithJarDataFactory` was replaced with `ProcessConfigEnricher`.
+* [#1479](https://github.com/TouK/nussknacker/pull/1479) `ProcessId` and `VersionId` moved to API included in `ProcessVersion`, remove spurious `ProcessId` and `ProcessVersionId` in restmodel.
+* [#1422](https://github.com/TouK/nussknacker/pull/1422) Removed `ServiceReturningType` and `WithExplicitMethod`, use `EagerServiceWithStaticParameters`, `EnricherContextTransformation` or `SingleInputGenericNodeTransformation`
+* [#2278](https://github.com/TouK/nussknacker/pull/1422) SQL Variable is removed         
+* [#2280](https://github.com/TouK/nussknacker/pull/2280) Added optional `defaultValue` field to `Parameter`. In `GenericNodeTransformation` can be set to `None` - values will be determined automatically.
+* [#2289](https://github.com/TouK/nussknacker/pull/2289) Savepoint path in `/api/adminProcessManagement/deploy` endpoint is passed as a `savepointPath` parameter instead of path segment.
+* [#2293](https://github.com/TouK/nussknacker/pull/2293) Enhancement: change `nodeCategoryMapping` configuration to `componentsGroupMapping`
+* [#2301](https://github.com/TouK/nussknacker/pull/2301) `GenericNodeTransformation.initialParameters` was removed - now `GenericNodeTransformation.contextTransformation` is used instead. 
+* [#2304](https://github.com/TouK/nussknacker/pull/2304) Upgrade to Flink 1.14. Pay attention to Flink dependencies - in some (e.g. runtime) there is no longer scala version.
+
+## In version 1.0.0
 
 * [#1439](https://github.com/TouK/nussknacker/pull/1439) [#2090](https://github.com/TouK/nussknacker/pull/2090) Upgrade do Flink 1.13.
   * `setTimeCharacteristic` is deprecated, and should be handled automatically by Flink. 
@@ -12,8 +23,21 @@ To see the biggest differences please consult the [changelog](Changelog.md).
 * [#2133](https://github.com/TouK/nussknacker/pull/2133) SQL Variable is hidden in generic model, please look at comment in `defaultModelConfig.conf`
 * [#2152](https://github.com/TouK/nussknacker/pull/2152) `schedulePropertyExtractor` parameter of `PeriodicDeploymentManagerProvider`
   was changed to a factory, replace with a lambda creating the original property extractor.
-* [#2176](https://github.com/TouK/nussknacker/pull/2176) `EnrichDeploymentWithJarDataFactory` was replaced with `ProcessConfigEnricher`.
-* [#2296](https://github.com/TouK/nussknacker/pull/2296) Scenarios & Fragments have separate TypeSpecificData implementations. Also, we remove `isSubprocess` field from process json, and respectively from MetaData constructor. See corresponding db migration `V1_031__FragmentSpecificData.scala`
+* [#2159](https://github.com/TouK/nussknacker/pull/2159) `useTypingResultTypeInformation` option is now enabled by default
+* [#2108](https://github.com/TouK/nussknacker/pull/2108) Changes in `ClassExtractionSettings`:
+  - Refactor of classes defining extraction rules,
+  - `TypedClass` has private `apply` method, please use `Typed.typedClass`
+  - Fewer classes/methods are accessible in SpEL, in particular Scala collections, internal time API, methods returning or having parameters from excluded classes
+* Changes in `OAuth2` security components:
+  - refactoring of `OpenIdConnectService`, now it's named `GenericOidcService` (it's best to use `OidcService`, which can handle most of the configuration automatically)
+* New security settings, in particular new flags in `ExpressionConfig`:
+  - `strictMethodsChecking`
+  - `staticMethodInvocationsChecking`
+  - `methodExecutionForUnknownAllowed`
+  - `dynamicPropertyAccessAllowed`
+  - `spelExpressionExcludeList`
+* [#2101](https://github.com/TouK/nussknacker/pull/2101) Global permissions can be arbitrary string, for admin user it's not necessary to return global permissions
+* [#2182](https://github.com/TouK/nussknacker/pull/2182) To avoid classloader leaks during SQL `DriverManager` registration, HSQLDB (used e.g. for SQL Variable) is no longer included in model jars, it should be added in Flink `lib` dir 
 
 ## In version 0.4.0
 

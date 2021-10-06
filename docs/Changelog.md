@@ -14,12 +14,24 @@ Nussknacker versions
 * [#2179](https://github.com/TouK/nussknacker/pull/2179) Permission allowing for editing scenario on FE, but not saving etc.
 * [#2150](https://github.com/TouK/nussknacker/pull/2150)
 Better handling of multiple schedules in batch periodic engine - fixed running one time scenarios and improved current scenario status reporting.
+* [#2208](https://github.com/TouK/nussknacker/pull/2208) Upgrade libraries: cats 2.6.x, cats-effect 2.5.x, circe 0.14.x
+* [#1422](https://github.com/TouK/nussknacker/pull/1422) Remove `ServiceReturningType` and `WithExplicitMethod`, added helpers, small refactor
+* [#2278](https://github.com/TouK/nussknacker/pull/1422) SQL Variable is removed          
+* [#2280](https://github.com/TouK/nussknacker/pull/2280) Default values for parameters can be setup programmatically now - thanks to `@DefaultValue` annotation and `Parameter.defaultValue` field.
+* [#2293](https://github.com/TouK/nussknacker/pull/2293) Enhancement: change `nodeCategoryMapping` configuration to `componentsGroupMapping` 
+* [#2169](https://github.com/TouK/nussknacker/pull/2169) Add Apache Ignite support to SQL Component by implementing
+a custom DB metadata provider that extends the standard JDBC Driver with missing features.
+* [#2301](https://github.com/TouK/nussknacker/pull/2301) Simplification of component API: `GenericNodeTransformation.initialParameters` was removed
+* [#2245](https://github.com/TouK/nussknacker/pull/2245) Periodic process scheduler retries failed scenario deployments based on PeriodicBatchConfig. 
+  Breaking change in PeriodicProcessListener FailedEvent. Failed event is split into FailedOnDeployEvent and FailedOnRunEvent. 
+  Please note that this mechanism only retries when failure on deployment occurs - failure recovery of running scenario should be handled by [restart strategy](https://docs.nussknacker.io/docs/installation_configuration_guide/ModelConfiguration#configuring-restart-strategies-flink-only)
+* [#2304](https://github.com/TouK/nussknacker/pull/2304) Upgrade to Flink 1.14
 
-0.5.0 (Not released yet)
+
+1.0.0
 ------------------------
 * [#1968](https://github.com/TouK/nussknacker/pull/1968) `BestEffortJsonEncoder` uses `ServiceLoader` mechanism to
 load additional encoders.
-* [#2003](https://github.com/TouK/nussknacker/pull/2003) Counts use epoch milli on backend.
 * [#1439](https://github.com/TouK/nussknacker/pull/1439) Upgrade to Flink 1.13
 * [#1993](https://github.com/TouK/nussknacker/pull/1993) Demo was moved to https://github.com/TouK/nussknacker-quickstart. 
 Some additional refactors done: logback configuration enhancements, simpler run.sh script, removed docker defaults from default configs.
@@ -27,7 +39,42 @@ Some additional refactors done: logback configuration enhancements, simpler run.
 Better handling Flink's job deploying - we report job initialization as a "DURING_DEPLOY" instead of "RUNNING" now, and we are checking available slots on Flink before deploy
 * [#2152](https://github.com/TouK/nussknacker/pull/2152) Possibility to create `SchedulePropertyExtractor` using deployment manager's configuration.
 * [#2133](https://github.com/TouK/nussknacker/pull/2133) SQL Variable is hidden in generic model
-
+* [#2101](https://github.com/TouK/nussknacker/pull/2101) Global permissions can be arbitrary string, can configure all top tabs (by default `Scenarios` is available)
+* [#2103](https://github.com/TouK/nussknacker/pull/2103) Counts work correctly with different timezones, `counts.queryMode` defaults to `SumOfDifferencesForRestarts`
+* [#2104](https://github.com/TouK/nussknacker/pull/2104) SQL component can retrieve table names for completion
+* [#2028](https://github.com/TouK/nussknacker/pull/2028) Limit (row and bytes) for generating and using test data
+* Various improvements in security/OAuth components
+  * [#2042](https://github.com/TouK/nussknacker/pull/2042) `redirectUrl` is optional
+  * [#2070](https://github.com/TouK/nussknacker/pull/2070) separate, easy to use OIDC `AuthenticationProvider`
+  * [#2079](https://github.com/TouK/nussknacker/pull/2079) anonymous access for OAuth2
+  * [#2093](https://github.com/TouK/nussknacker/pull/2093) appending role claims from OAuth2 token
+  * [#1933](https://github.com/TouK/nussknacker/pull/1933) being able to configure own FE `AuthenticationProvider` with module federation  
+* [#2046](https://github.com/TouK/nussknacker/pull/2046) Additional functions in generic model
+* Security improvements:
+  * [#2067](https://github.com/TouK/nussknacker/pull/2067) Blocking dangerous methods in SpEL in runtime
+  * [#1966](https://github.com/TouK/nussknacker/pull/1966) Disable dynamic property access by default
+  * [#1909](https://github.com/TouK/nussknacker/pull/1909) Static method validation
+  * [#1922](https://github.com/TouK/nussknacker/pull/1922) Block method invocation on `Unknown`
+* [#2095](https://github.com/TouK/nussknacker/pull/2095) Remove business view
+* [#2110](https://github.com/TouK/nussknacker/pull/2110) Remove node grouping
+* [#2098](https://github.com/TouK/nussknacker/pull/2098) Correct timestamps for tests of Kafka sources
+* [#2108](https://github.com/TouK/nussknacker/pull/2108) Enhanced class extraction settings, fewer unnecessary methods        
+* [#2191](https://github.com/TouK/nussknacker/pull/2191) KafkaAvroSink performance fix
+* UI enhancements:              
+  * [#1706](https://github.com/TouK/nussknacker/pull/1706) New window manager, consistent behaviour, many improvements, 
+    e.g. modals can be expanded to full screen, fix display of fragments in FF
+  * [#2184](https://github.com/TouK/nussknacker/pull/2184), [#2101](https://github.com/TouK/nussknacker/pull/2101) Fix undo breaking UI in certain circumstances
+  * [#2181](https://github.com/TouK/nussknacker/pull/2181), [#1975](https://github.com/TouK/nussknacker/pull/1975) Remove spurious 'unsaved changes' after opening aggregation nodes
+  * [#2202](https://github.com/TouK/nussknacker/pull/2202) Correct hashes of FE assets
+  * [#2097](https://github.com/TouK/nussknacker/pull/2097), [#2178](https://github.com/TouK/nussknacker/pull/2178) Pasting nodes in correct places
+  * [#2003](https://github.com/TouK/nussknacker/pull/2003) Counts dialog fixes: timezone handling, datepicker allows editing from keyboard
+  * [#2111](https://github.com/TouK/nussknacker/pull/2111) Correct graph display after opening fragment
+  * [#2087](https://github.com/TouK/nussknacker/pull/2087) Pan and zoom animation
+  * [#2081](https://github.com/TouK/nussknacker/pull/2081) Fix switch behaviour after changing condition
+  * [#2071](https://github.com/TouK/nussknacker/pull/2071) Fix pasting cell on multiple edges
+  * [#1978](https://github.com/TouK/nussknacker/pull/1978) Removed unclear node details panel
+  * 
+  
 0.4.0
 ------------------------
 * More precise TypeInformation generation
