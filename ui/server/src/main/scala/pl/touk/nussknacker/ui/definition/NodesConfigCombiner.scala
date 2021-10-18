@@ -6,7 +6,7 @@ object NodesConfigCombiner {
   import cats.instances.map._
   import cats.syntax.semigroup._
 
-  def combine(fixed: Map[String, SingleNodeConfig], dynamic: Map[String, SingleNodeConfig]): Map[String, SingleNodeConfig] = {
-    fixed |+| dynamic
+  def combine(configs: Map[String, SingleNodeConfig]*): Map[String, SingleNodeConfig] = {
+    configs.reduce(_ |+| _)
   }
 }

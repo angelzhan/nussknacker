@@ -3,8 +3,8 @@ package pl.touk.nussknacker.engine.management
 import com.typesafe.config.Config
 import org.asynchttpclient.DefaultAsyncHttpClientConfig
 import pl.touk.nussknacker.engine.ModelData.ClasspathConfig
-import pl.touk.nussknacker.engine.{ModelData, DeploymentManagerProvider, ProcessingTypeConfig}
-import pl.touk.nussknacker.engine.api.{StreamMetaData, TypeSpecificData}
+import pl.touk.nussknacker.engine.{DeploymentManagerProvider, ModelData, ProcessingTypeConfig, TypeSpecificDataInitializer}
+import pl.touk.nussknacker.engine.api.{FragmentSpecificData, ScenarioSpecificData, StreamMetaData, TypeSpecificData}
 import pl.touk.nussknacker.engine.api.deployment.DeploymentManager
 import pl.touk.nussknacker.engine.flink.queryablestate.FlinkQueryableClient
 import pl.touk.nussknacker.engine.api.queryablestate.QueryableClient
@@ -33,8 +33,10 @@ class FlinkStreamingDeploymentManagerProvider extends DeploymentManagerProvider 
 
   override def name: String = "flinkStreaming"
 
-  override def emptyProcessMetadata(isSubprocess: Boolean): TypeSpecificData
-  = StreamMetaData(parallelism = if (isSubprocess) None else Some(1))
+  override def typeSpecificDataInitializer: TypeSpecificDataInitializer = new TypeSpecificDataInitializer {
+    override def forScenario: ScenarioSpecificData = StreamMetaData(Some(1))
+    override def forFragment: FragmentSpecificData = FragmentSpecificData(None)
+  }
 
   override def supportsSignals: Boolean = true
 }

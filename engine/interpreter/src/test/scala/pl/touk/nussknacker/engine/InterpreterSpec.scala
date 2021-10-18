@@ -382,7 +382,7 @@ class InterpreterSpec extends FunSuite with Matchers {
 
       .sink("sink", "'result'", "dummySink"))
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.FilterNode(Filter("f1", "#param == 'a'"),
@@ -407,7 +407,7 @@ class InterpreterSpec extends FunSuite with Matchers {
 
       .sink("sink", "'result'", "dummySink"))
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.FilterNode(Filter("f1", "#param == 'a'"),
@@ -435,14 +435,14 @@ class InterpreterSpec extends FunSuite with Matchers {
 
       .sink("sink", "'result'", "dummySink"))
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.FilterNode(Filter("f1", "#param == 'a'"),
           List(canonicalnode.FlatNode(Sink("deadEnd", SinkRef("dummySink", List()), Some("'deadEnd'"))))
         ), canonicalnode.FlatNode(SubprocessOutputDefinition("out1", "output", List.empty))), List.empty)
 
-    val nested = CanonicalProcess(MetaData("subProcess2", StreamMetaData()), null,
+    val nested = CanonicalProcess(MetaData("subProcess2", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.Subprocess(SubprocessInput("sub2",
@@ -467,7 +467,7 @@ class InterpreterSpec extends FunSuite with Matchers {
       )))
 
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.SwitchNode(Switch("f1", "#param", "switchParam"),
@@ -491,7 +491,7 @@ class InterpreterSpec extends FunSuite with Matchers {
       .subprocessEnd("sub", "subProcess1", "param" -> "#input.accountId"))
 
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(SubprocessParameter("param", SubprocessClazzRef[String])))),
         canonicalnode.FlatNode(Sink("result", SinkRef("dummySink", List()), Some("'result'")))), List.empty)
@@ -510,7 +510,7 @@ class InterpreterSpec extends FunSuite with Matchers {
       .subprocessOneOut("sub", "subProcess1", "output", "toMultiply" -> "2", "multiplyBy" -> "4")
       .sink("sink", "#output.result.toString", "dummySink"))
 
-    val subprocess = CanonicalProcess(MetaData("subProcess1", StreamMetaData()), null,
+    val subprocess = CanonicalProcess(MetaData("subProcess1", FragmentSpecificData()), null,
       List(
         canonicalnode.FlatNode(SubprocessInputDefinition("start", List(
           SubprocessParameter("toMultiply", SubprocessClazzRef[java.lang.Integer]),

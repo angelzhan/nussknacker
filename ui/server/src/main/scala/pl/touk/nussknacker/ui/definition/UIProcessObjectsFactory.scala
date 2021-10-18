@@ -1,9 +1,9 @@
 package pl.touk.nussknacker.ui.definition
 
 import pl.touk.nussknacker.engine.ModelData
-import pl.touk.nussknacker.engine.api.MetaData
+import pl.touk.nussknacker.engine.api.{FragmentSpecificData, MetaData, ScenarioSpecificData}
 import pl.touk.nussknacker.engine.api.async.{DefaultAsyncInterpretationValue, DefaultAsyncInterpretationValueDeterminer}
-import pl.touk.nussknacker.engine.api.definition.{Parameter, RawParameterEditor}
+import pl.touk.nussknacker.engine.api.definition.{MandatoryParameterValidator, Parameter, RawParameterEditor}
 import pl.touk.nussknacker.engine.api.deployment.DeploymentManager
 import pl.touk.nussknacker.engine.api.process.{AdditionalPropertyConfig, ParameterConfig, SingleNodeConfig}
 import pl.touk.nussknacker.engine.api.typed.typing.{Typed, Unknown}
@@ -50,9 +50,10 @@ object UIProcessObjectsFactory {
 
     val dynamicNodesConfig = uiProcessDefinition.allDefinitions.mapValues(_.nodeConfig)
 
+    val subprocessesComponentsConfig = subprocessInputs.mapValues(_.nodeConfig)
     //we append fixedNodesConfig, because configuration of default nodes (filters, switches) etc. will not be present in dynamicNodesConfig...
     //maybe we can put them also in uiProcessDefinition.allDefinitions?
-    val finalNodesConfig = NodesConfigCombiner.combine(fixedNodesConfig, dynamicNodesConfig)
+    val finalNodesConfig = NodesConfigCombiner.combine(fixedNodesConfig, dynamicNodesConfig, subprocessesComponentsConfig)
 
     val defaultParametersValues = ParamDefaultValueConfig(finalNodesConfig.map { case (k, v) => (k, v.params.getOrElse(Map.empty)) })
     val defaultParametersFactory = DefaultValueDeterminerChain(defaultParametersValues)
@@ -60,6 +61,7 @@ object UIProcessObjectsFactory {
     val nodeCategoryMapping = processConfig.getOrElse[Map[String, Option[String]]]("nodeCategoryMapping", Map.empty)
     val additionalPropertiesConfig = processConfig
       .getOrElse[Map[String, AdditionalPropertyConfig]]("additionalPropertiesConfig", Map.empty)
+      .filter(_ => !isSubprocess) // fixme: it should be introduced separate config for additionalPropertiesConfig for fragments. For now we skip that
       .mapValues(createUIAdditionalPropertyConfig)
 
     val defaultUseAsyncInterpretationFromConfig = processConfig.as[Option[Boolean]]("asyncExecutionConfig.defaultUseAsyncInterpretation")
@@ -100,10 +102,10 @@ object UIProcessObjectsFactory {
                                     classLoader: ClassLoader,
                                     fixedNodesConfig: Map[String, SingleNodeConfig]): Map[String, ObjectDefinition] = {
     val subprocessInputs = subprocessesDetails.collect {
-      case SubprocessDetails(CanonicalProcess(MetaData(id, _, _, _, _), _, FlatNode(SubprocessInputDefinition(_, parameters, _)) :: _, additionalBranches), category) =>
-        val config = fixedNodesConfig.getOrElse(id, SingleNodeConfig.zero)
+      case SubprocessDetails(CanonicalProcess(MetaData(id, FragmentSpecificData(docsUrl), _, _), _, FlatNode(SubprocessInputDefinition(_, parameters, _)) :: _, additionalBranches), category) =>
+        val config = fixedNodesConfig.getOrElse(id, SingleNodeConfig.zero.copy(docsUrl = docsUrl))
         val typedParameters = parameters.map(extractSubprocessParam(classLoader, config))
-        (id, new ObjectDefinition(typedParameters, Typed[java.util.Map[String, Any]], List(category), fixedNodesConfig.getOrElse(id, SingleNodeConfig.zero)))
+        (id, new ObjectDefinition(typedParameters, Typed[java.util.Map[String, Any]], List(category), config))
     }.toMap
     subprocessInputs
   }

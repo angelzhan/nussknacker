@@ -13,6 +13,7 @@ To see the biggest differences please consult the [changelog](Changelog.md).
 * [#2152](https://github.com/TouK/nussknacker/pull/2152) `schedulePropertyExtractor` parameter of `PeriodicDeploymentManagerProvider`
   was changed to a factory, replace with a lambda creating the original property extractor.
 * [#2176](https://github.com/TouK/nussknacker/pull/2176) `EnrichDeploymentWithJarDataFactory` was replaced with `ProcessConfigEnricher`.
+* [#2296](https://github.com/TouK/nussknacker/pull/2296) Scenarios & Fragments have separate TypeSpecificData implementations. Also, we remove `isSubprocess` field from process json, and respectively from MetaData constructor. See corresponding db migration `V1_031__FragmentSpecificData.scala`
 
 ## In version 0.4.0
 
