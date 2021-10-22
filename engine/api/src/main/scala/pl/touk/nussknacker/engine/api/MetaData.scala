@@ -33,7 +33,7 @@ object ProcessAdditionalFields {
                     typeSpecificData: TypeSpecificData,
                     additionalFields: Option[ProcessAdditionalFields] = None,
                     subprocessVersions: Map[String, Long] = Map.empty) {
-  val isSubprocess: Boolean = typeSpecificData.isSubprocess
+  lazy val isSubprocess: Boolean = typeSpecificData.isSubprocess
 }
 
 @ConfiguredJsonCodec sealed trait TypeSpecificData {
