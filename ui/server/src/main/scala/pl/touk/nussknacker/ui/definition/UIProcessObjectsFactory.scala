@@ -53,7 +53,7 @@ object UIProcessObjectsFactory {
     val subprocessesComponentsConfig = subprocessInputs.mapValues(_.nodeConfig)
     //we append fixedNodesConfig, because configuration of default nodes (filters, switches) etc. will not be present in dynamicNodesConfig...
     //maybe we can put them also in uiProcessDefinition.allDefinitions?
-    val finalNodesConfig = NodesConfigCombiner.combine(fixedNodesConfig, dynamicNodesConfig, subprocessesComponentsConfig)
+    val finalNodesConfig = NodesConfigCombiner.combine(subprocessesComponentsConfig, fixedNodesConfig, dynamicNodesConfig, subprocessesComponentsConfig)
 
     val defaultParametersValues = ParamDefaultValueConfig(finalNodesConfig.map { case (k, v) => (k, v.params.getOrElse(Map.empty)) })
     val defaultParametersFactory = DefaultValueDeterminerChain(defaultParametersValues)
@@ -103,7 +103,7 @@ object UIProcessObjectsFactory {
                                     fixedNodesConfig: Map[String, SingleNodeConfig]): Map[String, ObjectDefinition] = {
     val subprocessInputs = subprocessesDetails.collect {
       case SubprocessDetails(CanonicalProcess(MetaData(id, FragmentSpecificData(docsUrl), _, _), _, FlatNode(SubprocessInputDefinition(_, parameters, _)) :: _, additionalBranches), category) =>
-        val config = fixedNodesConfig.getOrElse(id, SingleNodeConfig.zero.copy(docsUrl = docsUrl))
+        val config = fixedNodesConfig.getOrElse(id, SingleNodeConfig.zero).copy(docsUrl = docsUrl)
         val typedParameters = parameters.map(extractSubprocessParam(classLoader, config))
         (id, new ObjectDefinition(typedParameters, Typed[java.util.Map[String, Any]], List(category), config))
     }.toMap
