@@ -21,7 +21,7 @@ import sttp.client.{NothingT, SttpBackend}
 import java.util.UUID
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class EmbeddedDeploymentManagerProvider extends DeploymentManagerProvider {
 
@@ -77,7 +77,7 @@ class EmbeddedDeploymentManager(modelData: ModelData, engineConfig: Config,
   }
 
   private def deployScenarioClosingOldIfNeeded(processVersion: ProcessVersion, deploymentData: DeploymentData, parsedResolvedScenario: EspProcess): Option[ExternalDeploymentId] = {
-    interpreters.get(processVersion.processName).foreach { case ScenarioInterpretationData(_, processVersion, oldVersion) =>
+    interpreters.get(processVersion.processName).collect { case ScenarioInterpretationData(_, processVersion, Success(oldVersion)) =>
       oldVersion.close()
       logger.debug(s"Closed already deployed scenario: $processVersion")
     }
@@ -88,15 +88,17 @@ class EmbeddedDeploymentManager(modelData: ModelData, engineConfig: Config,
 
   private def deployScenario(processVersion: ProcessVersion, deploymentData: DeploymentData, parsedResolvedScenario: EspProcess) = {
     val jobData = JobData(parsedResolvedScenario.metaData, processVersion, deploymentData)
-    val interpreter = new KafkaTransactionalScenarioInterpreter(parsedResolvedScenario, jobData, modelData, contextPreparer)
-    val result = interpreter.run()
-    result.onComplete {
-      case Failure(exception) => handleUnexpectedError(processVersion, exception)
-      case Success(_) => //closed without problems
+    val interpreterTry = Try {
+      val interpreter = new KafkaTransactionalScenarioInterpreter(parsedResolvedScenario, jobData, modelData, contextPreparer)
+      val result = interpreter.run()
+      result.onComplete {
+        case Failure(exception) => handleUnexpectedError(processVersion, exception)
+        case Success(_) => //closed without problems
+      }
+      interpreter
     }
-
     val deploymentId = UUID.randomUUID().toString
-    val deploymentEntry = processVersion.processName -> ScenarioInterpretationData(deploymentId, processVersion, interpreter)
+    val deploymentEntry = processVersion.processName -> ScenarioInterpretationData(deploymentId, processVersion, interpreterTry)
     logger.debug(s"Deployed scenario $processVersion")
     (deploymentId, deploymentEntry)
   }
@@ -104,10 +106,12 @@ class EmbeddedDeploymentManager(modelData: ModelData, engineConfig: Config,
   override def cancel(name: ProcessName, user: User): Future[Unit] = {
     interpreters.get(name) match {
       case None => Future.failed(new IllegalArgumentException(s"Cannot find scenario $name"))
-      case Some(ScenarioInterpretationData(_, _, interpreter)) => Future.successful {
+      case Some(ScenarioInterpretationData(_, _, interpreterTry)) => Future.successful {
         interpreters -= name
-        interpreter.close()
-        logger.debug(s"Scenario $name stopped")
+        interpreterTry.foreach { interpreter =>
+          interpreter.close()
+          logger.debug(s"Scenario $name stopped")
+        }
       }
     }
   }
@@ -116,20 +120,22 @@ class EmbeddedDeploymentManager(modelData: ModelData, engineConfig: Config,
     interpreters.get(name).map { interpreterData =>
       ProcessState(
         deploymentId = interpreterData.deploymentId,
-        status = statusMapping.getOrElse(interpreterData.scenarioInterpreter.status(), SimpleStateStatus.NotDeployed),
+        status = toScenarioStateStatus(interpreterData.scenarioInterpreter.map(_.status())),
         version = Some(interpreterData.processVersion),
         definitionManager = processStateDefinitionManager
       )
     }
   }
 
-  private val statusMapping: Map[TaskStatus, StateStatus] = Map(
-    TaskStatus.Running -> SimpleStateStatus.Running,
-    TaskStatus.Restarting -> EmbeddedStateStatus.Restarting
-  )
+  private def toScenarioStateStatus(taskStatusTry: Try[TaskStatus]): StateStatus = taskStatusTry match {
+    case Failure(ex) => EmbeddedStateStatus.failed(ex)
+    case Success(TaskStatus.Running) => SimpleStateStatus.Running
+    case Success(TaskStatus.Restarting) => EmbeddedStateStatus.Restarting
+    case Success(other) => throw new IllegalStateException(s"Not supporter task status: $other")
+  }
 
   override def close(): Unit = {
-    interpreters.values.foreach(_.scenarioInterpreter.close())
+    interpreters.values.foreach(_.scenarioInterpreter.foreach(_.close()))
     logger.info("All embedded scenarios successfully closed")
   }
 
@@ -152,6 +158,6 @@ class EmbeddedDeploymentManager(modelData: ModelData, engineConfig: Config,
     }
   }
 
-  case class ScenarioInterpretationData(deploymentId: String, processVersion: ProcessVersion, scenarioInterpreter: KafkaTransactionalScenarioInterpreter)
+  case class ScenarioInterpretationData(deploymentId: String, processVersion: ProcessVersion, scenarioInterpreter: Try[KafkaTransactionalScenarioInterpreter])
 }
 
