@@ -46,16 +46,31 @@ sealed trait ScenarioSpecificData extends TypeSpecificData
 
 case class FragmentSpecificData(docsUrl: Option[String] = None) extends TypeSpecificData
 
+// TODO: rename to FlinkStreamMetaData
 case class StreamMetaData(parallelism: Option[Int] = None,
                           //we assume it's safer to spill state to disk and fix performance than to fix heap problems...
                           spillStateToDisk: Option[Boolean] = Some(true),
                           useAsyncInterpretation: Option[Boolean] = None,
-                          checkpointIntervalInSeconds: Option[Long] = None) extends ScenarioSpecificData {
+                          checkpointIntervalInSeconds: Option[Long] = None) extends BaseStreamMetaData[StreamMetaData] {
 
   def checkpointIntervalDuration  : Option[Duration]= checkpointIntervalInSeconds.map(Duration.apply(_, TimeUnit.SECONDS))
 
   def shouldUseAsyncInterpretation(implicit defaultValue: DefaultAsyncInterpretationValue) : Boolean = useAsyncInterpretation.getOrElse(defaultValue.value)
 
+  override def withParallelism(newParallelism: Option[Int]): StreamMetaData = copy(parallelism = newParallelism)
+
+}
+
+case class LiteStreamMetaData(parallelism: Option[Int] = None) extends BaseStreamMetaData[LiteStreamMetaData] {
+
+  override def withParallelism(newParallelism: Option[Int]): LiteStreamMetaData = copy(parallelism = newParallelism)
+
+}
+
+sealed trait BaseStreamMetaData[T <: BaseStreamMetaData[T]] extends ScenarioSpecificData {
+  def parallelism: Option[Int]
+
+  def withParallelism(newParallelism: Option[Int]): T
 }
 
 case class RequestResponseMetaData(path: Option[String]) extends ScenarioSpecificData
