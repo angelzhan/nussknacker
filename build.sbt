@@ -952,7 +952,10 @@ lazy val liteK8sDeploymentManager = (project in lite("k8sDeploymentManager")).
     },
     buildAndImportRuntimeImageToK3d := {
       (liteEngineKafkaRuntime / Docker / publishLocal).value
-      "k3d" #&& s"k3d image import touk/nussknacker-lite-kafka-runtime:${version.value}" #|| "echo 'No k3d installed!'" !
+      "kubectl get nodes" #&&
+      "k3d" #&&
+        s"k3d image import touk/nussknacker-lite-kafka-runtime:${version.value}" #&&
+        "kubectl get nodes" !
     },
     ExternalDepsTests / Keys.test := (ExternalDepsTests / Keys.test).dependsOn(
       buildAndImportRuntimeImageToK3d
